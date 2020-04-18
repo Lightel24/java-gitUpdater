@@ -151,10 +151,10 @@ public class GitUpdater {
 		int isuptodate = IS_UP_TO_DATE; //So we do not prevent from executing if the version check fails.
 		switch(versionCheck) {
 			case SEMVER_CHECK_TAGNAME:
-				isuptodate = semverCheckTagname();
+				isuptodate = semverCheck(latestRelease.getTag_name());
 			break;
 			case SEMVER_CHECK_RELEASENAME:
-				isuptodate = semverCheckReleasename();
+				isuptodate = semverCheck(latestRelease.getName());
 			break;
 			case DIFFERENCE_CHECK_TAGNAME:
 				isuptodate = diffCheckTagname();
@@ -233,14 +233,39 @@ public class GitUpdater {
 			return IS_NOT_UP_TO_DATE;
 		}
 	}
-
-	private int semverCheckReleasename() {
-		logger.error("Method unimplemented");
-		return 1;
-	}
-
-	private int semverCheckTagname() {
-		logger.error("Method unimplemented");
-		return 1;
+	
+	/*Format: x.y.z. ... .b 	numbers only */
+	private int semverCheck(String remotever) throws VersionCheckException {
+		int value = IS_UP_TO_DATE;
+		try {
+			
+			//Parse the versionName
+			String temp[] = versionName.split("\\.");
+			String temp2[] = remotever.split("\\.");
+			
+			if(temp.length == temp2.length) {
+				
+				int versionval[] = new int[temp.length];
+				int releaseversionval[] = new int[temp2.length];
+				
+				for(int i = 0; i<temp.length;i++) {
+					versionval[i] = Integer.parseInt(temp[i]);
+					releaseversionval[i] = Integer.parseInt(temp2[i]);
+				}
+				
+				int i =0;
+				while(i<versionval.length && versionval[i]>=releaseversionval[i]) {
+					i++;
+				}
+				if(i<versionval.length) {
+					value = IS_NOT_UP_TO_DATE;
+				}
+			}else {
+				value = IS_NOT_UP_TO_DATE;
+			}
+		}catch(NumberFormatException ex) {
+			throw new VersionCheckException("The version string is not a valid semantic version format. local: " + versionName + " 	remote: " + remotever);
+		}		
+		return value;
 	}
 }

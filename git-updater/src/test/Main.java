@@ -14,22 +14,18 @@ public class Main {
 
 	public static void main(String[] args) {
 		GitUpdater up = new GitUpdater();
-		up.setVersionCheckMethod(GitUpdater.DIFFERENCE_CHECK_RELEASENAME);
+		up.setVersionCheckMethod(GitUpdater.SEMVER_CHECK_TAGNAME);
 		try {
 			
 			up.setRepo("apache","airflow");
-			up.asyncIsUpToDate("Airflow 1.10.10, 2020-04-09",new UpdateCallback() {
+			up.asyncIsUpToDate("1.10.9a",new UpdateCallback() {
 				@Override
 				public void onCheckEnd(UpdateEvent ev) {
 					if(ev.getMessageType().equals(UpdateEvent.CHECK_RESULT) && ev.isUpToDate()==GitUpdater.IS_UP_TO_DATE) {
 						
-						try {
-							
-							System.out.println("Programme à jour on telecharge quand meme!");
-							up.downloadAsset(up.getLatestRelease().getAssets()[0], new File(up.getLatestRelease().getAssets()[0].getName()));
-						} catch (VersionCheckException | IOException e) {
-							e.printStackTrace();
-						}
+						System.out.println("Programme à jour on telecharge paas");
+					}else {
+						System.out.println("Programme pas à jour on telecharge aps!");
 					}
 				}
 			});
